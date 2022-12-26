@@ -8,6 +8,8 @@ import RecentExpenses from './screens/RecentExpenses';
 import AllExpenses from './screens/AllExpenses';
 import { GlobalStyles } from './constants/styles';
 import {Ionicons} from '@expo/vector-icons'
+import IconButton from './UI/IconButton';
+import ExpenseContextProvider from './store/expenses-context';
 
 
 const Stack = createNativeStackNavigator();
@@ -15,10 +17,16 @@ const BottomTabs = createBottomTabNavigator();
 export default function App() {
 function ExpenseOverview(){
   return <BottomTabs.Navigator 
-  screenOptions={
+  screenOptions={ ({navigation}) =>(
     {headerStyle:{backgroundColor: GlobalStyles.colors.primary500},
   headerTintColor: 'white',
-tabBarActiveTintColor: GlobalStyles.colors.accent500}
+tabBarActiveTintColor: GlobalStyles.colors.accent500,
+headerRight: ({tintColor})=> <IconButton 
+icon="add" size={24} color={tintColor}
+onPress={ () => {
+  navigation.navigate('ManageExpense');
+}}
+/>})
   }
   >
     <BottomTabs.Screen name='RecentExpenses' component={RecentExpenses}
@@ -26,7 +34,8 @@ tabBarActiveTintColor: GlobalStyles.colors.accent500}
       title:'Recent Expenses',
       tabBarLabel: 'Recent',
       tabBarIcon: ({color , size}) => (
-        <Ionicons name="hourglass" size={size} color={color}/>
+        <Ionicons name="hourglass" size={size} 
+        color={color}/>
       )
     }}/>
     <BottomTabs.Screen 
@@ -44,19 +53,29 @@ tabBarActiveTintColor: GlobalStyles.colors.accent500}
 
   return (
    <>
-   <StatusBar style="auto" />
+   <StatusBar style="light" />
+   <ExpenseContextProvider>
    <NavigationContainer>
-    <Stack.Navigator>
+    <Stack.Navigator
+    screenOptions={{
+      headerStyle: {backgroundColor: GlobalStyles.colors.primary500},
+      headerTintColor:'white'
+    }}>
     <Stack.Screen 
     name='ExpensesOverview' 
     component={ExpenseOverview}
     options={{
        headerShown: false
     }}/>
-      <Stack.Screen name='ManageExpense' component={ManageExpense}/>
+      <Stack.Screen name='ManageExpense' component={ManageExpense}
+      options={{
+        title: 'Manage Expense',
+        presentation: 'modal'
+      }}/>
      
     </Stack.Navigator>
    </NavigationContainer>
+   </ExpenseContextProvider>
    </>
   );
 }
